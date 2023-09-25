@@ -75,7 +75,7 @@ in future versions. It is not yet widely used.
 
 The website of libxcb.
 
-=item L<http://code.stapelberg.de/git/X11-XCB/>
+=item L<https://github.com/zhmylove/X11-XCB>
 
 The git webinterface for the development of X11::XCB.
 
