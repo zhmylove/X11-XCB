@@ -22,14 +22,17 @@ use XML::Simple qw(:strict);
 use XML::Descent;
 my $parser;
 
-# forward declarations of utility functions:
+# Forward declarations of utility functions:
 sub on; sub walk;    # parser
 sub slurp; sub spit; # file reading/writing
-# name mangeling:
+# Name mangeling:
 sub decamelize($); sub xcb_name($); sub xcb_type($); sub perl_name($); sub cname($);
 
 sub indent (&$@); # templating
 our $indent_level = 1;
+
+# File descriptors for: XCB_xs.inc typedefs.h typemap
+my ($OUT, $OUTTD, $OUTTM);
 
 my $prefix = 'xcb_';
 my %const;
@@ -164,8 +167,8 @@ sub do_structs {
     my $xcb_type = xcb_type $x_name;
     my $perlname = perl_name $x_name;
 
-    print OUTTD " typedef $xcb_type $perlname;\n";
-    print OUTTM "$perlname * T_PTROBJ\n";
+    print $OUTTD " typedef $xcb_type $perlname;\n";
+    print $OUTTM "$perlname * T_PTROBJ\n";
 
     my (@fields, %type);
     on_field(\@fields, \%type);
@@ -328,34 +331,34 @@ sub do_replies($\%\%) {
         $perlname =~ s/^xcb_//g;
         my $cookie = xcb_name($req->{name}) . "_cookie_t";
 
-        print OUT "HV *\n$perlname(conn,sequence)\n";
-        print OUT "    XCBConnection *conn\n";
-        print OUT "    int sequence\n";
-        print OUT "  PREINIT:\n";
-        print OUT "    HV * hash;\n";
-        print OUT "    HV * inner_hash;\n";
-        print OUT "    AV * alist;\n";
-        print OUT "    int c;\n";
-        print OUT "    int _len;\n";
-        print OUT "    $cookie cookie;\n";
-        print OUT "    $reply *reply;\n";
-        print OUT "  CODE:\n";
-        print OUT "    cookie.sequence = sequence;\n";
-        print OUT "    reply = $name(conn, cookie, NULL);\n";
+        print $OUT "HV *\n$perlname(conn,sequence)\n";
+        print $OUT "    XCBConnection *conn\n";
+        print $OUT "    int sequence\n";
+        print $OUT "  PREINIT:\n";
+        print $OUT "    HV * hash;\n";
+        print $OUT "    HV * inner_hash;\n";
+        print $OUT "    AV * alist;\n";
+        print $OUT "    int c;\n";
+        print $OUT "    int _len;\n";
+        print $OUT "    $cookie cookie;\n";
+        print $OUT "    $reply *reply;\n";
+        print $OUT "  CODE:\n";
+        print $OUT "    cookie.sequence = sequence;\n";
+        print $OUT "    reply = $name(conn, cookie, NULL);\n";
         # XXX use connection_has_error
-        print OUT qq/    if (!reply) croak("Could not get reply for: $name"); /;
-        print OUT "    hash = newHV();\n";
+        print $OUT qq/    if (!reply) croak("Could not get reply for: $name"); /;
+        print $OUT "    hash = newHV();\n";
 
         # We ignore pad0 and response_type. Every reply has sequence and length
-        print OUT "    hv_store(hash, \"sequence\", strlen(\"sequence\"), newSViv(reply->sequence), 0);\n";
-        print OUT "    hv_store(hash, \"length\", strlen(\"length\"), newSViv(reply->length), 0);\n";
+        print $OUT "    hv_store(hash, \"sequence\", strlen(\"sequence\"), newSViv(reply->sequence), 0);\n";
+        print $OUT "    hv_store(hash, \"length\", strlen(\"length\"), newSViv(reply->length), 0);\n";
         for my $var (@{ $rep->[0]->{field} }) {
             my $type = xcb_type($var->{type});
             my $name = cname($var->{name});
             if ($type =~ /^(?:uint(?:8|16|32)_t|int)$/) {
-                print OUT "    hv_store(hash, \"$name\", strlen(\"$name\"), newSViv(reply->$name), 0);\n";
+                print $OUT "    hv_store(hash, \"$name\", strlen(\"$name\"), newSViv(reply->$name), 0);\n";
             } else {
-                print OUT "    /* TODO: type $type, name $var->{name} */\n";
+                print $OUT "    /* TODO: type $type, name $var->{name} */\n";
             }
         }
 
@@ -371,9 +374,9 @@ sub do_replies($\%\%) {
                 last if $perlname eq 'randr_get_provider_property_reply';
 
                 # A byte-array. Provide it as SV.
-                print OUT "    _len = reply->value_len * (reply->format / 8);\n";
-                print OUT "    if (_len > 0)\n";
-                print OUT "        hv_store(hash, \"value\", strlen(\"value\"), newSVpvn((const char*)(reply + 1), _len), 0);\n";
+                print $OUT "    _len = reply->value_len * (reply->format / 8);\n";
+                print $OUT "    if (_len > 0)\n";
+                print $OUT "        hv_store(hash, \"value\", strlen(\"value\"), newSVpvn((const char*)(reply + 1), _len), 0);\n";
                 next;
             }
 
@@ -382,37 +385,37 @@ sub do_replies($\%\%) {
 
             next unless defined($struct->{field}) && scalar(@{ $struct->{field} }) > 0;
 
-            print OUT "    {\n";
-            print OUT "    /* Handling list part of the reply */\n";
-            print OUT "    alist = newAV();\n";
-            print OUT "    $iterator iterator = $pre" . '_' . decamelize($listname) . "_iterator(reply);\n";
-            print OUT "    for (; iterator.rem > 0; $iterator_next(&iterator)) {\n";
-            print OUT "      $type *data = iterator.data;\n";
-            print OUT "      inner_hash = newHV();\n";
+            print $OUT "    {\n";
+            print $OUT "    /* Handling list part of the reply */\n";
+            print $OUT "    alist = newAV();\n";
+            print $OUT "    $iterator iterator = $pre" . '_' . decamelize($listname) . "_iterator(reply);\n";
+            print $OUT "    for (; iterator.rem > 0; $iterator_next(&iterator)) {\n";
+            print $OUT "      $type *data = iterator.data;\n";
+            print $OUT "      inner_hash = newHV();\n";
 
             for my $field (@{ $struct->{field} }) {
                 my $type = xcb_type($field->{type});
                 my $name = cname($field->{name});
 
                 if ($type =~ /^(?:uint(?:8|16|32)_t|int)$/) {
-                    print OUT "      hv_store(inner_hash, \"$name\", strlen(\"$name\"), newSViv(data->$name), 0);\n";
+                    print $OUT "      hv_store(inner_hash, \"$name\", strlen(\"$name\"), newSViv(data->$name), 0);\n";
                 } else {
-                    print OUT "      /* TODO: type $type, name $name */\n";
+                    print $OUT "      /* TODO: type $type, name $name */\n";
                 }
             }
-            print OUT "      av_push(alist, newRV((SV*)inner_hash));\n";
+            print $OUT "      av_push(alist, newRV((SV*)inner_hash));\n";
 
-            print OUT "    }\n";
-            print OUT "    hv_store(hash, \"" . $list->{name} . "\", strlen(\"" . $list->{name} . "\"), newRV((SV*)alist), 0);\n";
+            print $OUT "    }\n";
+            print $OUT "    hv_store(hash, \"" . $list->{name} . "\", strlen(\"" . $list->{name} . "\"), newRV((SV*)alist), 0);\n";
 
-            print OUT "    }\n";
+            print $OUT "    }\n";
         }
 
         #print Dumper($rep);
         #if (defined($rep->{list})) {
 
-        print OUT "    RETVAL = hash;\n";
-        print OUT "  OUTPUT:\n    RETVAL\n\n";
+        print $OUT "    RETVAL = hash;\n";
+        print $OUT "  OUTPUT:\n    RETVAL\n\n";
     }
 }
 
@@ -438,7 +441,8 @@ sub do_enums {
 }
 
 sub generate {
-    my $path = ExtUtils::PkgConfig->variable('xcb-proto', 'xcbincludedir');
+    my $path = ExtUtils::PkgConfig->variable('xcb-proto', 'xcbincludedir') ||
+        die "Package xcb-proto was not found in the pkg-config search path.";
     my @xcb_xmls = qw/xproto.xml xinerama.xml randr.xml xkb.xml/;
 
     -d $path or die "$path: $!\n";
@@ -454,11 +458,11 @@ sub generate {
         $xml
     } @xcb_xmls;
 
-    open(OUT,   ">XCB_xs.inc");
-    open(OUTTM, ">typemap");
-    open(OUTTD, ">typedefs.h");
+    open($OUT,   ">XCB_xs.inc");
+    open($OUTTM, ">typemap");
+    open($OUTTD, ">typedefs.h");
 
-    print OUTTM << '__';
+    my $additional_types = << '__';
 XCBConnection *             T_PTROBJ_MG
 intArray *                  T_ARRAY
 X11_XCB_ICCCM_WMHints *     T_PTROBJ
@@ -468,6 +472,7 @@ uint16_t                    T_U_SHORT
 uint32_t                    T_UV
 __
 
+    print $OUTTM $additional_types;
 
 
     # Our own additions: EWMH constants
@@ -505,7 +510,7 @@ __
         };
         walk;
 
-        print OUT @struct;
+        print $OUT @struct;
         undef @struct;
 
         do_events($xcb);
@@ -522,8 +527,8 @@ __
             @request = grep ! /^HV \*\s+$xkb_exclude\b/, @request;
         }
 
-        print OUT "MODULE = X11::XCB PACKAGE = X11::XCB\n";
-        print OUT @request;
+        print $OUT "MODULE = X11::XCB PACKAGE = X11::XCB\n";
+        print $OUT @request;
         undef @request;
 
         &do_replies($xcb);
@@ -531,9 +536,9 @@ __
 
     }
 
-    close OUT;
-    close OUTTM;
-    close OUTTD;
+    close $OUT;
+    close $OUTTM;
+    close $OUTTD;
 
     my @const = sort keys %const;
 
@@ -594,7 +599,7 @@ sub xcb_type($) {
 sub decamelize($) {
     my ($camel) = @_;
 
-    my $special = [qw(
+    my @special = qw(
         CHAR2B
         INT64
         FLOAT32
@@ -603,9 +608,9 @@ sub decamelize($) {
         STRING8
         Family_DECnet
         DECnet
-   )];
+   );
 
-    return lc $camel if $camel ~~ $special;
+    return lc $camel if first { $camel eq $_ } @special;
 
     # FIXME: eliminate this special case
     return $camel if $camel =~ /^CUT_BUFFER/;
@@ -633,7 +638,7 @@ sub decamelize($) {
 
 sub cname($) {
     my $name = shift;
-    return "_$name" if $name ~~ [ qw/new delete class operator/ ];
+    return "_$name" if first { $name eq $_ } qw/new delete class operator/;
     return $name;
 }
 
