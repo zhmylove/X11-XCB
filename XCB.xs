@@ -416,8 +416,13 @@ _connect_and_attach_struct(self)
 void
 DESTROY(self)
     XCBConnection *self
+  PREINIT:
+    const xcb_setup_t *setup;
   CODE:
-    Safefree(self);
+    // This skips (un)Safefree() on failed connections to avoid SIGABRT on invalid pointer free
+    setup = xcb_get_setup(self);
+    if (setup->status)
+        Safefree(self);
 
 int
 has_error(self)
