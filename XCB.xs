@@ -116,12 +116,22 @@ _new_event_object(xcb_generic_event_t *event)
     type = (event->response_type & 0x7F);
 
     switch (type) {
+        case XCB_NONE:
+        {
+            objname = "X11::XCB::Event::GenericError";
+            xcb_generic_error_t *e = (xcb_generic_error_t*)event;
+            hv_store(hash, "error_code", strlen("error_code"), newSViv(e->error_code), 0);
+            hv_store(hash, "sequence", strlen("sequence"), newSViv(e->sequence), 0);
+            hv_store(hash, "resource_id", strlen("resource_id"), newSViv(e->resource_id), 0);
+            hv_store(hash, "minor_code", strlen("minor_code"), newSViv(e->minor_code), 0);
+            hv_store(hash, "major_code", strlen("major_code"), newSViv(e->major_code), 0);
+        }
+        break;
+
         case XCB_CREATE_NOTIFY:
         {
             objname = "X11::XCB::Event::CreateNotify";
             xcb_create_notify_event_t *e = (xcb_create_notify_event_t*)event;
-            hv_store(hash, "response_type", strlen("response_type"), newSViv(e->response_type), 0);
-            hv_store(hash, "sequence", strlen("sequence"), newSViv(e->sequence), 0);
             hv_store(hash, "parent", strlen("parent"), newSViv(e->parent), 0);
             hv_store(hash, "window", strlen("window"), newSViv(e->window), 0);
             hv_store(hash, "x", strlen("x"), newSViv(e->x), 0);
