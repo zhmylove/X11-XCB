@@ -482,6 +482,7 @@ __
 
     # Add LEAVE_NOTIFY and BUTTON_RELEASE manually, as they are missing in xml
     $const{LEAVE_NOTIFY} = 'newSViv(XCB_LEAVE_NOTIFY)';
+    $const{KEY_RELEASE} = 'newSViv(XCB_KEY_RELEASE)';
     $const{BUTTON_RELEASE} = 'newSViv(XCB_BUTTON_RELEASE)';
 
     # ICCCM constants from xcb-util
