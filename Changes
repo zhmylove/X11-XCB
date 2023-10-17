@@ -1,5 +1,18 @@
 Revision history for libXcb Perl bindings.
 
+0.21    2023-10-18
+
+    - Add GenericError event
+
+    - Add constant for KEY_RELEASE
+
+    - Add INSTALL.md
+
+    - Fix X11::XCB::DESTROY for failed connections
+
+    - Fix warnings in _GenerateMyXS.pm
+      And resolve #144815.
+
 0.20    2023-09-26
 
     - Fix type cast for ClientMessage data to avoid warning
