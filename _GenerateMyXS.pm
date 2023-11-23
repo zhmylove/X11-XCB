@@ -486,6 +486,7 @@ __
     $const{KEY_RELEASE} = 'newSViv(XCB_KEY_RELEASE)';
     $const{BUTTON_RELEASE} = 'newSViv(XCB_BUTTON_RELEASE)';
     $const{FOCUS_OUT} = 'newSViv(XCB_FOCUS_OUT)';
+    $const{CIRCULATE_REQUEST} = 'newSViv(XCB_CIRCULATE_REQUEST)';
 
     # ICCCM constants from xcb-util
     for my $const (qw(XCB_ICCCM_WM_STATE_WITHDRAWN XCB_ICCCM_WM_STATE_NORMAL XCB_ICCCM_WM_STATE_ICONIC)) {
