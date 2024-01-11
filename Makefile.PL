@@ -44,7 +44,7 @@ perl_version_from 'lib/X11/XCB.pm';
 version_from 'lib/X11/XCB.pm';
 
 author 'Michael Stapelberg <michael+xcb@stapelberg.de>';
-author 'Sergei Zhmylev <zhmylove@cpan.org>';
+author 'Sergei Zhmylev <zhmylove@narod.ru>';
 
 repository 'https://github.com/zhmylove/X11-XCB';
 bugtracker 'https://github.com/zhmylove/X11-XCB/issues';

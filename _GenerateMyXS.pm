@@ -138,7 +138,7 @@ $param_decl
   CODE:
     cookie = $xcb_name($xcb_param);
 
-    hash = newHV();
+    hash = (HV *)sv_2mortal((SV *)newHV());
     hv_store(hash, "sequence", strlen("sequence"), newSViv(cookie.sequence), 0);
     RETVAL = hash;
 $cleanup
@@ -347,7 +347,7 @@ sub do_replies($\%\%) {
         print $OUT "    reply = $name(conn, cookie, NULL);\n";
         # XXX use connection_has_error
         print $OUT qq/    if (!reply) croak("Could not get reply for: $name"); /;
-        print $OUT "    hash = newHV();\n";
+        print $OUT "    hash = (HV *)sv_2mortal((SV *)newHV());\n";
 
         # We ignore pad0 and response_type. Every reply has sequence and length
         print $OUT "    hv_store(hash, \"sequence\", strlen(\"sequence\"), newSViv(reply->sequence), 0);\n";
