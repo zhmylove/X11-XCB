@@ -5,6 +5,7 @@
 #include <xcb/xinerama.h>
 #include <xcb/randr.h>
 #include <xcb/xkb.h>
+#include <xcb/composite.h>
 
 #include "ppport.h"
 

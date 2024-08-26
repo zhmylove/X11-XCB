@@ -223,6 +223,10 @@ sub param_sanitize {
 
 sub do_requests {
     my $x_name = $_->{name};
+
+    # TODO: unimplemented (incomplete typemap)
+    return if $x_name eq "CreateRegionFromBorderClip";
+
     my $xcb_name  = xcb_name $x_name;
 
     # XXX hack, to get eg. a xinerama_ prefix
@@ -443,7 +447,7 @@ sub do_enums {
 sub generate {
     my $path = ExtUtils::PkgConfig->variable('xcb-proto', 'xcbincludedir') ||
         die "Package xcb-proto was not found in the pkg-config search path.";
-    my @xcb_xmls = qw/xproto.xml xinerama.xml randr.xml xkb.xml/;
+    my @xcb_xmls = qw/xproto.xml xinerama.xml randr.xml xkb.xml composite.xml/;
 
     -d $path or die "$path: $!\n";
 
