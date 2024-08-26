@@ -579,6 +579,30 @@ get_keymap(conn)
   OUTPUT:
     RETVAL
 
+HV *
+get_image_data(conn,sequence)
+    XCBConnection *conn
+    int sequence
+  PREINIT:
+    HV * hash;
+    xcb_get_image_cookie_t cookie;
+    xcb_get_image_reply_t *reply;
+  INIT:
+    hash = (HV *)sv_2mortal((SV *)newHV());
+  CODE:
+    cookie.sequence = sequence;
+    reply = xcb_get_image_reply(conn, cookie, NULL);
+    if (! reply)
+      croak("Could not get reply for: xcb_get_image_reply");
+    hv_store(hash, "sequence", strlen("sequence"), newSViv(reply->sequence), 0);
+    hv_store(hash, "length", strlen("length"), newSViv(reply->length), 0);
+    hv_store(hash, "depth", strlen("depth"), newSViv(reply->depth), 0);
+    hv_store(hash, "visual", strlen("visual"), newSViv(reply->visual), 0);
+    hv_store(hash, "data", strlen("data"), newSVpvn((const char*)xcb_get_image_data(reply), xcb_get_image_data_length(reply)), 0);
+    RETVAL = hash;
+  OUTPUT:
+    RETVAL
+
 SV *
 get_query_tree_children(conn, window)
     XCBConnection *conn
