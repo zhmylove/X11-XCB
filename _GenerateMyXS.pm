@@ -419,6 +419,10 @@ sub do_replies($\%\%) {
         #if (defined($rep->{list})) {
 
         print $OUT "    RETVAL = hash;\n";
+
+        # Sometimes XCB gives use a lot of data along the reply, like in xcb_get_image_reply()
+        print $OUT "    free(reply);\n";
+
         print $OUT "  OUTPUT:\n    RETVAL\n\n";
     }
 }

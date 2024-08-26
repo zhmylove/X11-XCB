@@ -600,6 +600,7 @@ get_image_data(conn,sequence)
     hv_store(hash, "visual", strlen("visual"), newSViv(reply->visual), 0);
     hv_store(hash, "data", strlen("data"), newSVpvn((const char*)xcb_get_image_data(reply), xcb_get_image_data_length(reply)), 0);
     RETVAL = hash;
+    free(reply);
   OUTPUT:
     RETVAL
 
