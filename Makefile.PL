@@ -50,7 +50,6 @@ repository 'https://github.com/zhmylove/X11-XCB';
 bugtracker 'https://github.com/zhmylove/X11-XCB/issues';
 
 requires 'Mouse';
-requires 'MouseX::NativeTraits';
 requires 'Try::Tiny';
 
 # These are build-time requirements, but there is no way to express this (that
