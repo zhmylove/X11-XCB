@@ -3,6 +3,9 @@
 ## Verification
 
 - make distclean
+- update all the documentation
+- update VERSION
+- update copyright years
 - git status            # check all the changed files
 - vim Changes           # prepare changelog
 - perl Makefile.PL
