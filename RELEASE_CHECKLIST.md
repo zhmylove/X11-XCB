@@ -29,4 +29,4 @@
 - upload to CPAN
 - give it some time to index on MetaCPAN
 - update FreeBSD port and AUR package
-- if system dependencies changed, update cpan-plugin-sysdeps
+- if system dependencies changed, update [cpan-plugin-sysdeps](https://github.com/eserte/cpan-plugin-sysdeps)
