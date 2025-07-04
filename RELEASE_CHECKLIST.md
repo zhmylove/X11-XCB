@@ -4,7 +4,7 @@
 
 - make distclean
 - update all the documentation
-- update VERSION
+- update VERSION in lib/X11/XCB.pm
 - update copyright years
 - git status            # check all the changed files
 - vim Changes           # prepare changelog
