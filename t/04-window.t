@@ -23,6 +23,11 @@ SKIP: {
 
     isa_ok($root, 'X11::XCB::Window');
 
+SKIP: {
+    my $wm_protocols_atom = $x->atom(name => 'WM_PROTOCOLS');
+    skip "Connection doesn't support atom WM_PROTOCOLS, maybe related to Xvfb.", 1
+        unless $wm_protocols_atom->exists;
+
     my $rect = $root->rect;
 
     ok('rect of the root window could be retrieved');
@@ -40,6 +45,8 @@ SKIP: {
     sleep 1;
     $window->delete_hint('urgency');
     sleep 1;
+} # end SKIP WM_PROTOCOLS
+
 }
 
 diag( "Testing X11::XCB, Perl $], $^X" );
