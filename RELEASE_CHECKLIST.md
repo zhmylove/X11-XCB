@@ -16,17 +16,20 @@
 
 ## Actual release
 
+- `perlver --blame .` from `Perl::MinimumVersion`
 - `make distclean`
-- `rm *.gz`
+- `rm *.gz MANIFEST MANIFEST.bak`
+- `rm -rf inc/`
 - `git add Changes`
-- `git commit -sm 'Bump version to 0.xx'`
-- `git tag 0.xx`
-- `git push origin`
-- `git push origin tag 0.xx`
 - `perl Makefile.PL`
 - `make manifest`
 - `make dist`
 - `make disttest`
+- `cpants_lint.pl --verbose ./X11-XCB-*.tar.gz` from `App::CPANTS::Lint`
+- `git commit -sm 'Bump version to 0.xx'`
+- `git tag 0.xx`
+- `git push origin`
+- `git push origin tag 0.xx`
 - upload to CPAN
 - make a release on GitHub
 - give it some time to index on MetaCPAN
